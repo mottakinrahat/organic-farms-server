@@ -3,7 +3,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 //middleware
 app.use(cors());
@@ -36,6 +36,7 @@ async function run() {
 
     const personalCollection = client.db('organicFarmers').collection('personalInfo');
     const cropsCollection = client.db('organicFarmers').collection('crops');
+    const productCollection = client.db('organicFarmers').collection('product');
 
     app.post('/personalInfo', async (req, res) => {
       const body = req.body;
@@ -51,7 +52,68 @@ async function run() {
       const cursor = cropsCollection.find();
       const result = await cursor.toArray();
       res.send(result);
+    });
+    app.get('/crops/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cropsCollection.findOne(query);
+      res.send(result);
+    });
+    app.put('/crops/:id', async (req, res) => {
+      const id = req.params.id;
+      const crops = req.body;
 
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateCrops = {
+        $set: {
+
+          productName: crops.productName,
+          ProductImage: crops.ProductImage,
+          quantity: crops.quantity,
+          subcategory: crops.subcategory,
+          price: crops.price,
+          Variety: crops.Variety
+        },
+      };
+      const result = await cropsCollection.updateOne(filter, updateCrops, options);
+      res.send(result);
+    });
+    app.put('/personalInfo/:id', async (req, res) => {
+      const id = req.params.id;
+      const profileInfo = req.body;
+
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateCrops = {
+        $set: {
+
+
+          nameOfBusiness: profileInfo.nameOfBusiness,
+          number: profileInfo.number,
+          DateOfFoundation: profileInfo.DateOfFoundation,
+          TurnOver: profileInfo.TurnOver,
+          areaOfFarm: profileInfo.areaOfFarm,
+          location: profileInfo.location,
+          photo: profileInfo.photo,
+          nameOf: profileInfo.nameOf
+
+        },
+      };
+      const result = await personalCollection.updateOne(filter, updateCrops, options);
+      res.send(result);
+    });
+    app.delete('/crops/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await cropsCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.get('/product', async (req, res) => {
+      const cursor = productCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     });
     app.get('/personalInfo', async (req, res) => {
       const cursor = personalCollection.find();
