@@ -115,6 +115,12 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    app.get('/product/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await productCollection.findOne(query);
+      res.send(result);
+    });
     app.get('/personalInfo', async (req, res) => {
       const cursor = personalCollection.find();
       const result = await cursor.toArray();
