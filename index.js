@@ -37,6 +37,7 @@ async function run() {
     const personalCollection = client.db('organicFarmers').collection('personalInfo');
     const cropsCollection = client.db('organicFarmers').collection('crops');
     const productCollection = client.db('organicFarmers').collection('product');
+    const productState = client.db('organicFarmers').collection('farmerState');
 
     app.post('/personalInfo', async (req, res) => {
       const body = req.body;
@@ -53,6 +54,23 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    app.get('/farmerState', async (req, res) => {
+      const cursor = productState.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get('/farmerState/:text', async (req, res) => {
+      if (req.params.text == 'Haryana' || req.params.text == 'Rajasthan' || req.params.text == 'Uttar Pradesh' || req.params.text == 'Uttrakhand') {
+        const result = await productState.find({ state_name: req.params.text }).toArray();
+        return res.send(result);
+      } else {
+        const result = await productState.find().toArray();
+        return res.send(result);
+      }
+    });
+
+
     app.get('/crops/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
