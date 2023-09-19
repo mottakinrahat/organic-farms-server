@@ -38,12 +38,21 @@ async function run() {
     const cropsCollection = client.db('organicFarmers').collection('crops');
     const productCollection = client.db('organicFarmers').collection('product');
     const productState = client.db('organicFarmers').collection('farmerState');
+    const userCollection = client.db('organicFarmers').collection('userData');
 
     app.post('/personalInfo', async (req, res) => {
       const body = req.body;
       const result = await personalCollection.insertOne(body);
       res.send(result);
     });
+
+    app.get('/personalInfo/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await personalCollection.findOne(query);
+      res.send(result);
+    });
+
     app.post('/crops', async (req, res) => {
       const body = req.body;
       const result = await cropsCollection.insertOne(body);
@@ -69,6 +78,23 @@ async function run() {
         return res.send(result);
       }
     });
+    // app.get('/personalInfo/:email', async (req, res) => {
+    //   if (req.params.email) {
+    //     const result = await personalCollection.find({ email: req.params.email }).toArray();
+    //     return res.send(result);
+    //   } else {
+    //     const result = await personalCollection.find().toArray();
+    //     return res.send(result);
+    //   }
+    // });
+    app.get('/personalInfo', async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = { email: req.query.email };
+      }
+      const result = await personalCollection.find(query).toArray();
+      res.send(result);
+    });
 
 
     app.get('/crops/:id', async (req, res) => {
@@ -89,8 +115,10 @@ async function run() {
           productName: crops.productName,
           ProductImage: crops.ProductImage,
           quantity: crops.quantity,
+          unit:crops.unit,
           subcategory: crops.subcategory,
           price: crops.price,
+          amount:crops.amount,
           Variety: crops.Variety
         },
       };
@@ -111,7 +139,9 @@ async function run() {
           number: profileInfo.number,
           DateOfFoundation: profileInfo.DateOfFoundation,
           TurnOver: profileInfo.TurnOver,
+          amount: profileInfo.amount,
           areaOfFarm: profileInfo.areaOfFarm,
+          unit: profileInfo.unit,
           location: profileInfo.location,
           photo: profileInfo.photo,
           nameOf: profileInfo.nameOf
@@ -144,12 +174,13 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-    app.get('/personalInfo/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await personalCollection.findOne(query);
+    app.post('/userInfo', async (req, res) => {
+      const body = req.body;
+      const result = await userCollection.insertOne(body);
       res.send(result);
     });
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
