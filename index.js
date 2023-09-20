@@ -63,6 +63,11 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    app.post('/farmerState', async (req, res) => {
+      const body = req.body;
+      const result = await productState.insertOne(body);
+      res.send(result);
+    });
     app.get('/farmerState', async (req, res) => {
       const cursor = productState.find();
       const result = await cursor.toArray();
@@ -70,8 +75,11 @@ async function run() {
     });
 
     app.get('/farmerState/:text', async (req, res) => {
-      if (req.params.text == 'Haryana' || req.params.text == 'Rajasthan' || req.params.text == 'Uttar Pradesh' || req.params.text == 'Uttrakhand') {
-        const result = await productState.find({ state_name: req.params.text }).toArray();
+      if (req.params.text) {
+        const searchText = req.params.text;
+        const regex = new RegExp(searchText.replace(/ /g, '\\s*'), 'i');
+        query = { state_name: { $regex: regex } };
+        const result = await productState.find(query).toArray();
         return res.send(result);
       } else {
         const result = await productState.find().toArray();
@@ -115,10 +123,10 @@ async function run() {
           productName: crops.productName,
           ProductImage: crops.ProductImage,
           quantity: crops.quantity,
-          unit:crops.unit,
+          unit: crops.unit,
           subcategory: crops.subcategory,
           price: crops.price,
-          amount:crops.amount,
+          amount: crops.amount,
           Variety: crops.Variety
         },
       };
