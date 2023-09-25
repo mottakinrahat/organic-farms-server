@@ -182,7 +182,7 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-    app.post('/userInfo', async (req, res) => {
+    app.post('/userData', async (req, res) => {
       const body = req.body;
       const result = await userCollection.insertOne(body);
       res.send(result);
