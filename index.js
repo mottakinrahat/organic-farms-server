@@ -151,7 +151,7 @@ async function run() {
           areaOfFarm: profileInfo.areaOfFarm,
           unit: profileInfo.unit,
           location: profileInfo.location,
-          photo: profileInfo.photo,
+          image: profileInfo.image,
           nameOf: profileInfo.nameOf
 
         },
