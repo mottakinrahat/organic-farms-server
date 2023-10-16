@@ -31,7 +31,8 @@ async function run() {
   try {
 
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    //await 
+    client.connect();
 
 
     const personalCollection = client.db('organicFarmers').collection('personalInfo');
@@ -41,9 +42,14 @@ async function run() {
     const userCollection = client.db('organicFarmers').collection('userData');
 
     app.post('/personalInfo', async (req, res) => {
-      const body = req.body;
-      const result = await personalCollection.insertOne(body);
-      res.send(result);
+      try {
+        const body = req.body;
+        const result = await personalCollection.insertOne(body);
+        res.send(result);
+      } catch (error) {
+        console.error('Error in personalInfo route:', error);
+        res.status(500).json({ error: 'An error occurred' });
+      }
     });
 
     app.get('/personalInfo/:id', async (req, res) => {
@@ -59,10 +65,16 @@ async function run() {
       res.send(result);
     });
     app.get('/crops', async (req, res) => {
-      const cursor = cropsCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+      try {
+        const cursor = cropsCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+      } catch (error) {
+        console.error('Error in /crops route:', error);
+        res.status(500).json({ error: 'An error occurred' });
+      }
     });
+
     app.post('/farmerState', async (req, res) => {
       const body = req.body;
       const result = await productState.insertOne(body);
@@ -86,23 +98,21 @@ async function run() {
         return res.send(result);
       }
     });
-    // app.get('/personalInfo/:email', async (req, res) => {
-    //   if (req.params.email) {
-    //     const result = await personalCollection.find({ email: req.params.email }).toArray();
-    //     return res.send(result);
-    //   } else {
-    //     const result = await personalCollection.find().toArray();
-    //     return res.send(result);
-    //   }
-    // });
+
     app.get('/personalInfo', async (req, res) => {
-      let query = {};
-      if (req.query.email) {
-        query = { email: req.query.email };
+      try {
+        let query = {};
+        if (req.query.email) {
+          query = { email: req.query.email };
+        }
+        const result = await personalCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error('Error in /personalInfo route:', error);
+        res.status(500).json({ error: 'An error occurred' });
       }
-      const result = await personalCollection.find(query).toArray();
-      res.send(result);
     });
+
 
 
     app.get('/crops/:id', async (req, res) => {
@@ -194,7 +204,7 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    //await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
